@@ -11,7 +11,7 @@ The `basetype` is used for nested collections, where `eltype` is repeatedly appl
 ```@setup 1
 using EltypeExtensions
 ```
-```@example 1
+```@repl 1
 basetype(Set{Matrix{Vector{Matrix{Complex{Rational{Int}}}}}})
 precisiontype(Set{Matrix{Vector{Matrix{Complex{Rational{Int}}}}}})
 ```
