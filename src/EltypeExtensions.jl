@@ -4,6 +4,12 @@ import Base: convert
 
 export elconvert, basetype, baseconvert, precisiontype, precisionconvert
 
+@static if VERSION < v"1.10"
+    @inline bigfloatconvert(x, prec) = BigFloat(x, prec)
+else
+    @inline bigfloatconvert(x, prec) = BigFloat(x, precision = prec)
+end
+
 """
     elconvert(T, A)
 
@@ -19,7 +25,7 @@ $(repr("text/plain", Matrix{Float64}))
 ```
 """
 elconvert(::Type{T}, A::AbstractArray) where T = AbstractArray{T}(A)
-elconvert(::Type{T}, A::AbstractRange) where T = AbstractRange{T}(A)
+elconvert(::Type{T}, A::AbstractRange) where T = T(first(A)):T(step(A)):T(last(A))
 elconvert(::Type{T}, A::AbstractSet) where T = AbstractSet{T}(A)
 
 """
@@ -116,10 +122,10 @@ Convert `A` to have the [`precisiontype`](@ref) of `T`. If `T` has adjustable pr
 # Examples
 ```jldoctest; setup = :(using EltypeExtensions: precisionconvert)
 julia> precisionconvert(BigFloat, 1//3+im, 128)
-0.3333333333333333333333333333333333333338 + 1.0im
+$(repr(bigfloatconvert(1//3, 128))) + 1.0im
 
 julia> precisionconvert(Float16, [[m/n for n in 1:3] for m in 1:3])
-3-element Vector{Vector{Float16}}:
+3-element $(repr(Vector{Vector{Float16}})):
  [1.0, 0.5, 0.3333]
  [2.0, 1.0, 0.6665]
  [3.0, 1.5, 1.0]
@@ -127,8 +133,8 @@ julia> precisionconvert(Float16, [[m/n for n in 1:3] for m in 1:3])
 """
 precisionconvert(T,A) = precisionconvert(T,A,precision(T))
 precisionconvert(::Type{T}, A::S, prec) where {T,S} = convert(_to_precisiontype(T,S), A)
-precisionconvert(::Type{BigFloat}, x::Real, prec) = BigFloat(x, prec)
-precisionconvert(::Type{BigFloat}, x::Complex, prec) = Complex(BigFloat(real(x), prec), BigFloat(imag(x), prec))
+precisionconvert(::Type{BigFloat}, x::Real, prec) = bigfloatconvert(x, prec)
+precisionconvert(::Type{BigFloat}, x::Complex, prec) = Complex(bigfloatconvert(real(x), prec), bigfloatconvert(imag(x), prec))
 precisionconvert(::Type{BigFloat}, A, prec) = precisionconvert.(BigFloat, A, prec)
 
 end

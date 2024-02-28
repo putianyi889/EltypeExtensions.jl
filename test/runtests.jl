@@ -1,9 +1,10 @@
+using Documenter
 using EltypeExtensions
 using Test
 using Aqua
 
-@testset "EltypeExtensions.jl" begin
-    # Write your tests here.
+@testset "Doctest" begin
+    doctest(EltypeExtensions)
 end
 
 @testset "Aqua" begin
