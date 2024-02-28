@@ -1,7 +1,7 @@
 name = "EltypeExtensions"
 uuid = "583f92f5-06d6-4306-8236-316410defc98"
 authors = ["Tianyi Pu <912396513@qq.com> and contributors"]
-version = "1.0.0-DEV"
+version = "0.0.1"
 
 [compat]
 Aqua = "0.8"
