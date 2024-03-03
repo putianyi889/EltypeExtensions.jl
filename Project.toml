@@ -3,6 +3,12 @@ uuid = "583f92f5-06d6-4306-8236-316410defc98"
 authors = ["Tianyi Pu <912396513@qq.com> and contributors"]
 version = "0.0.1"
 
+[weakdeps]
+QuasiArrays = "c4ea9172-b204-11e9-377d-29865faadc5c"
+
+[extensions]
+EltypeExtensionsQuasiArraysExt = "QuasiArrays"
+
 [compat]
 Aqua = "0.8"
 Documenter = "0.27, 1"
