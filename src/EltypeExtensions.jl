@@ -110,6 +110,7 @@ julia> _to_precisiontype(Int, Complex{Rational{BigInt}})
 Complex{Rational{Int64}}
 ```
 """
+_to_precisiontype(::Type{T}, ::Type{Complex}) where T = Complex{T}
 _to_precisiontype(::Type{T}, ::Type{Complex{S}}) where {T,S} = Complex{_to_precisiontype(T,S)}
 _to_precisiontype(::Type{T}, ::Type{<:Rational}) where T<:Integer = Rational{T}
 _to_precisiontype(::Type{T}, ::Type{S}) where {T,S} = eltype(S) == S ? T : _to_eltype(_to_precisiontype(T, eltype(S)), S)
@@ -133,6 +134,7 @@ julia> precisionconvert(Float16, [[m/n for n in 1:3] for m in 1:3])
 """
 precisionconvert(T,A) = precisionconvert(T,A,precision(T))
 precisionconvert(::Type{T}, A::S, prec) where {T,S} = convert(_to_precisiontype(T,S), A)
+precisionconvert(::Type{BigFloat}, A::S) where {S} = convert(_to_precisiontype(BigFloat,S), A) # not ideal. just a workaround
 precisionconvert(::Type{BigFloat}, x::Real, prec) = bigfloatconvert(x, prec)
 precisionconvert(::Type{BigFloat}, x::Complex, prec) = Complex(bigfloatconvert(real(x), prec), bigfloatconvert(imag(x), prec))
 precisionconvert(::Type{BigFloat}, A, prec) = precisionconvert.(BigFloat, A, prec)
