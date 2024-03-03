@@ -7,7 +7,7 @@ using ContinuumArrays
 
 @testset "bugs" begin
     @test _to_precisiontype(Float64, Complex) == Complex{Float64}
-    @test precisionconvert(BigFloat, Inclusion(-1..1)) isa Inclusion{BigFloat}
+    @test precisionconvert(BigFloat, rand(ComplexF64, 3)) isa Vector{Complex{BigFloat}}
 end
 
 @testset "Doctest" begin
