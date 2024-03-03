@@ -3,7 +3,6 @@ using EltypeExtensions
 using EltypeExtensions: _to_precisiontype
 using Test
 using Aqua
-using ContinuumArrays
 
 @testset "bugs" begin
     @test _to_precisiontype(Float64, Complex) == Complex{Float64}
