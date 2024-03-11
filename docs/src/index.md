@@ -25,6 +25,18 @@ precisiontype(Set{Matrix{Vector{Matrix{Complex{Rational{Int}}}}}})
 where `some` can be `el`, `base` and `precision`.
 
 ### On `precisionconvert`
-Since some types (e.g. `BigFloat`) can have variable precision, `precisionconvert` accepts a third argument `prec` which specifies the precision. `prec` defaults to `precision(T)` and has no effect when `T` has a const precision.
-
-When `T` is an integer, the conversion will dig into `Rational` as well. In contrast, since `Rational` as a whole is more "precise" than an integer, `precisiontype` doesn't unwrap `Rational`.
+`precisionconvert` accepts an optional third argument `prec`. 
+- When `T` has static precision, `prec` has no effect.
+- When `T` has dynamic precision, `prec` specifies the precision of conversion. When `prec` is not provided, the precision is decided by the external setup from `T`. The difference is significant when `precisionconvert` is called by another function:
+  ```@repl
+  precision(BigFloat)
+  f(x) = precisionconvert(BigFloat, x, precision(BigFloat))
+  g(x) = precisionconvert(BigFloat, x)
+  setprecision(128)
+  f(π) # static precision
+  g(π) # precision varies with the global setting
+  ```
+- When `T` is an integer, the conversion will dig into `Rational` as well. In contrast, since `Rational` as a whole is more "precise" than an integer, `precisiontype` doesn't unwrap `Rational`.
+  ```@repl
+  precisiontype(precisionconvert(Int128, Int8(1)//Int8(2)))
+  ```
