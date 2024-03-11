@@ -28,7 +28,7 @@ where `some` can be `el`, `base` and `precision`.
 `precisionconvert` accepts an optional third argument `prec`. 
 - When `T` has static precision, `prec` has no effect.
 - When `T` has dynamic precision, `prec` specifies the precision of conversion. When `prec` is not provided, the precision is decided by the external setup from `T`. The difference is significant when `precisionconvert` is called by another function:
-  ```@repl
+  ```@repl 1
   precision(BigFloat)
   f(x) = precisionconvert(BigFloat, x, precision(BigFloat))
   g(x) = precisionconvert(BigFloat, x)
@@ -37,6 +37,6 @@ where `some` can be `el`, `base` and `precision`.
   g(π) # precision varies with the global setting
   ```
 - When `T` is an integer, the conversion will dig into `Rational` as well. In contrast, since `Rational` as a whole is more "precise" than an integer, `precisiontype` doesn't unwrap `Rational`.
-  ```@repl
+  ```@repl 1
   precisiontype(precisionconvert(Int128, Int8(1)//Int8(2)))
   ```
