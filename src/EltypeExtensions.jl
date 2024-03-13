@@ -116,9 +116,12 @@ _to_precisiontype(::Type{T}, ::Type{<:Rational}) where T<:Integer = Rational{T}
 _to_precisiontype(::Type{T}, ::Type{S}) where {T,S} = eltype(S) == S ? T : _to_eltype(_to_precisiontype(T, eltype(S)), S)
 
 """
-    precisionconvert(T::Type, A, prec=precision(T))
+    precisionconvert(T::Type, A, prec)
 
-Convert `A` to have the [`precisiontype`](@ref) of `T`. If `T` has adjustable precision such as `BigFloat`, the precision can be specified by `prec`, otherwise `prec` takes no effect.
+Convert `A` to have the [`precisiontype`](@ref) of `T`. `prec` is optional.
+- When `T` has static precision (e.g. `Float64`), `prec` has no effect.
+- When `T` has dynamic precision (e.g. `BigFloat`), `prec` specifies the precision of conversion. When `prec` is not provided, the precision is decided by the external setup from `T`.
+- When `T` is an integer, the conversion will dig into `Rational` as well. In contrast, since `Rational` as a whole is more "precise" than an integer, [`precisiontype`](@ref) doesn't unwrap `Rational`.
 
 # Examples
 ```jldoctest; setup = :(using EltypeExtensions: precisionconvert)
@@ -132,9 +135,9 @@ julia> precisionconvert(Float16, [[m/n for n in 1:3] for m in 1:3])
  [3.0, 1.5, 1.0]
 ```
 """
-precisionconvert(T,A) = precisionconvert(T,A,precision(T))
-precisionconvert(::Type{T}, A::S, prec) where {T,S} = convert(_to_precisiontype(T,S), A)
-precisionconvert(::Type{BigFloat}, A::S) where {S} = convert(_to_precisiontype(BigFloat,S), A) # not ideal. just a workaround
+precisionconvert(::Type{T}, A::S) where {T,S} = convert(_to_precisiontype(T,S), A)
+precisionconvert(::Type{T}, A::S, prec) where {T,S} = precisionconvert(T, A)
+precisionconvert(::Type{BigFloat}, A::S) where {S} = convert(_to_precisiontype(BigFloat,S), A)
 precisionconvert(::Type{BigFloat}, x::Real, prec) = bigfloatconvert(x, prec)
 precisionconvert(::Type{BigFloat}, x::Complex, prec) = Complex(bigfloatconvert(real(x), prec), bigfloatconvert(imag(x), prec))
 precisionconvert(::Type{BigFloat}, A, prec) = precisionconvert.(BigFloat, A, prec)
