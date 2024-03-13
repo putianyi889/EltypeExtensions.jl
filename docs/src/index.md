@@ -4,7 +4,10 @@ EltypeExtensions.jl is a mini toolbox for eltype-related conversions. The motiva
 
 We note that this package has some overlap with [TypeUtils.jl](https://github.com/emmt/TypeUtils.jl) and [Unitless.jl](https://github.com/emmt/Unitless.jl).
 
-## Guides
+## Introduction
+
+### `elconvert`
+`elconvert(T, x)` works like `convert(T, x)`, except that `T` refers to the eltype of the result. This can be useful for generic codes.
 
 ### `basetype` and `precisiontype`
 The `basetype` is used for nested collections, where `eltype` is repeatedly applied until the bottom. `precisiontype` has a similar idea, but goes deeper when possible. `precisiontype` is used to manipulate the accuracy of (nested) collections.
@@ -30,7 +33,7 @@ where `some` can be `el`, `base` and `precision`.
 - When `T` has dynamic precision, `prec` specifies the precision of conversion. When `prec` is not provided, the precision is decided by the external setup from `T`. The difference is significant when `precisionconvert` is called by another function:
   ```@repl 1
   precision(BigFloat)
-  f(x) = precisionconvert(BigFloat, x, precision(BigFloat))
+  f(x) = precisionconvert(BigFloat, x, 256)
   g(x) = precisionconvert(BigFloat, x)
   setprecision(128)
   f(π) # static precision
