@@ -26,6 +26,7 @@ $(repr("text/plain", Matrix{Float64}))
 """
 elconvert(::Type{T}, A::AbstractArray) where T = AbstractArray{T}(A)
 elconvert(::Type{T}, A::AbstractRange) where T = T(first(A)):T(step(A)):T(last(A))
+elconvert(::Type{T}, A::AbstractUnitRange) where T<:Integer = AbstractUnitRange{T}(A)
 elconvert(::Type{T}, A::AbstractSet) where T = AbstractSet{T}(A)
 
 """
