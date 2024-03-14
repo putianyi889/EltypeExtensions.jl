@@ -20,6 +20,10 @@ using Aqua
     @testset "#8" begin
         @test precisionconvert(Int128, Int8(1)//Int8(2)) isa Rational{Int128}
     end
+
+    @testset "#10" begin
+        @test elconvert(Int32, 1:5) === Int32(1):Int32(5)
+    end
 end
 
 @testset "Doctest" begin
