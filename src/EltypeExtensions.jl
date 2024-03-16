@@ -53,7 +53,11 @@ for TYP in (Adjoint, Diagonal, Hermitian, Symmetric, SymTridiagonal, Transpose)
 end
 _to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Integer = UnitRange{T}
 
-_to_eltype(::Type{CartesianIndex{N}}, ::Type{CartesianIndices{N,R}}) where {N, R<:Tuple{Vararg{OrdinalRange{Int64, Int64}, N}}} = CartesianIndices{N,R}
+@static if VERSION >= v"1.6"
+    _to_eltype(::Type{CartesianIndex{N}}, ::Type{CartesianIndices{N,R}}) where {N, R<:Tuple{Vararg{OrdinalRange{Int64, Int64}, N}}} = CartesianIndices{N,R}
+else
+    _to_eltype(::Type{CartesianIndex{N}}, ::Type{CartesianIndices{N,R}}) where {N, R<:Tuple{Vararg{AbstractUnitRange{Int64},N}}} = CartesianIndices{N,R}
+end
 _to_eltype(::Type{T}, ::Type{<:CartesianIndices}) where T = Array{T}
 
 @static if VERSION >= v"1.7"
