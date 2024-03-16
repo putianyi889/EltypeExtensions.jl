@@ -43,7 +43,7 @@ Convert type `S` to have the `eltype` of `T`.
 _to_eltype(::Type{T}, ::Type{S}) where {T,S} = eltype(S) == S ? T : MethodError(_to_eltype, T, S)
 _to_eltype(::Type{T}, ::Type{Array{S,N}}) where {T,S,N} = Array{T,N}
 _to_eltype(::Type{T}, ::Type{<:Set}) where T = Set{T}
-for TYP in (Adjoint, Diagonal, Symmetric, SymTridiagonal, Transpose, UpperHessenberg)
+for TYP in (Adjoint, Diagonal, Hermitian, Symmetric, SymTridiagonal, Transpose, UpperHessenberg)
     @eval _to_eltype(::Type{T}, ::Type{$TYP{S,M}}) where {T,S,M} = $TYP{T,_to_eltype(T,M)}
     @eval elconvert(::Type{T}, A::S) where {T,S<:$TYP} = convert(_to_eltype(T, S), A)
 end
