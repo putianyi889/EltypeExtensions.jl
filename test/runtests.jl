@@ -1,8 +1,30 @@
 using Documenter
 using EltypeExtensions
-using EltypeExtensions: _to_precisiontype
+using EltypeExtensions: _to_precisiontype, _to_eltype
 using Test
 using Aqua
+using LinearAlgebra
+
+function testelconvert(T, A)
+    @test elconvert(T, A) isa _to_eltype(T, typeof(A))
+end
+
+@testset "elconvert" begin
+    A = rand(3,3)
+    testelconvert(Float16, A)
+    testelconvert(Float16, Symmetric(A))
+    testelconvert(Float16, A')
+    testelconvert(Float16, transpose(A))
+    testelconvert(Float16, SymTridiagonal(Symmetric(A)))
+    if VERSION >= v"1.3"
+        testelconvert(Float16, UpperHessenberg(A))
+    end
+    testelconvert(Float16, Hermitian(A))
+    
+    r = 1:5
+    testelconvert(Int8, r)
+    testelconvert(Float64, r)
+end
 
 @testset "bugs" begin
     @test _to_precisiontype(Float64, Complex) == Complex{Float64}
