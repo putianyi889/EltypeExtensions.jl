@@ -1,6 +1,7 @@
 module EltypeExtensions
 
 import Base: convert
+import LinearAlgebra: AbstractQ # to support 1.0, not using package extensions
 
 export elconvert, basetype, baseconvert, precisiontype, precisionconvert
 
@@ -28,6 +29,9 @@ elconvert(::Type{T}, A::AbstractArray) where T = AbstractArray{T}(A)
 elconvert(::Type{T}, A::AbstractRange) where T = T(first(A)):T(step(A)):T(last(A))
 elconvert(::Type{T}, A::AbstractUnitRange) where T<:Integer = AbstractUnitRange{T}(A)
 elconvert(::Type{T}, A::AbstractSet) where T = AbstractSet{T}(A)
+if !(AbstractQ <: AbstractMatrix) # see https://github.com/JuliaLang/julia/pull/46196
+    elconvert(::Type{T}, A::AbstractQ) where T = convert(AbstractQ{T}, A)
+end
 
 """
     _to_eltype(T, S)
