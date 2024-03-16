@@ -40,6 +40,7 @@ end
 
 Convert type `S` to have the `eltype` of `T`.
 """
+_to_eltype(::Type{T}, ::Type{S}) where {T,S} = eltype(S) == S ? T : MethodError(_to_eltype, T, S)
 _to_eltype(::Type{T}, ::Type{Array{S,N}}) where {T,S,N} = Array{T,N}
 _to_eltype(::Type{T}, ::Type{<:Set}) where T = Set{T}
 _to_eltype(::Type{T}, ::Type{Symmetric{S,M}}) where {T,S,M} = Symmetric{T,_to_eltype(T,M)}
