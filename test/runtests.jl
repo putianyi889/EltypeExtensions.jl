@@ -24,6 +24,10 @@ end
     r = 1:5
     testelconvert(Int8, r)
     testelconvert(Float64, r)
+
+    inds = CartesianIndex(1,1):CartesianIndex(3,3)
+    testelconvert(CartesianIndex{2}, inds)
+    testelconvert(Tuple, inds)
 end
 
 @testset "bugs" begin
