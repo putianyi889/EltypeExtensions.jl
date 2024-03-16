@@ -2,6 +2,7 @@ module EltypeExtensions
 
 import Base: convert
 using LinearAlgebra # to support 1.0, not using package extensions
+import LinearAlgebra: AbstractQ
 
 export elconvert, basetype, baseconvert, precisiontype, precisionconvert
 
