@@ -16,6 +16,7 @@ end
     testelconvert(Float16, A')
     testelconvert(Float16, transpose(A))
     testelconvert(Float16, SymTridiagonal(Symmetric(A)))
+    testelconvert(Float16, UpperHessenberg(A))
     
     r = 1:5
     testelconvert(Int8, r)
