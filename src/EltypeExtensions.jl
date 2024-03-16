@@ -6,10 +6,15 @@ import LinearAlgebra: AbstractQ
 
 export elconvert, basetype, baseconvert, precisiontype, precisionconvert
 
-@static if VERSION < v"1.10"
-    @inline bigfloatconvert(x, prec) = BigFloat(x, prec)
-else
+@static if VERSION >= v"1.3"
+    _to_eltype(::Type{T}, ::Type{UpperHessenberg{S,M}}) where {T,S,M} = UpperHessenberg{T,_to_eltype(T,M)}
+    elconvert(::Type{T}, A::UpperHessenberg{S,M}) where {T,S,M} = UpperHessenberg{T,_to_eltype(T,M)}(A)
+end
+@static if VERSION >= v"1.10" # see https://github.com/JuliaLang/julia/pull/46196
+    elconvert(::Type{T}, A::AbstractQ) where T = convert(AbstractQ{T}, A)
     @inline bigfloatconvert(x, prec) = BigFloat(x, precision = prec)
+else
+    @inline bigfloatconvert(x, prec) = BigFloat(x, prec)
 end
 
 """
@@ -31,9 +36,6 @@ elconvert(::Type{T}, A::AbstractArray) where T = convert(AbstractArray{T}, A)
 elconvert(::Type{T}, A::AbstractRange) where T = map(T, A)
 elconvert(::Type{T}, A::AbstractUnitRange) where T<:Integer = convert(AbstractUnitRange{T}, A)
 elconvert(::Type{T}, A::Tuple) where T = convert.(T, A)
-if !(AbstractQ <: AbstractMatrix) # see https://github.com/JuliaLang/julia/pull/46196
-    elconvert(::Type{T}, A::AbstractQ) where T = convert(AbstractQ{T}, A)
-end
 
 """
     _to_eltype(T, S)
@@ -43,7 +45,7 @@ Convert type `S` to have the `eltype` of `T`.
 _to_eltype(::Type{T}, ::Type{S}) where {T,S} = eltype(S) == S ? T : MethodError(_to_eltype, T, S)
 _to_eltype(::Type{T}, ::Type{Array{S,N}}) where {T,S,N} = Array{T,N}
 _to_eltype(::Type{T}, ::Type{<:Set}) where T = Set{T}
-for TYP in (Adjoint, Diagonal, Hermitian, Symmetric, SymTridiagonal, Transpose, UpperHessenberg)
+for TYP in (Adjoint, Diagonal, Hermitian, Symmetric, SymTridiagonal, Transpose)
     @eval _to_eltype(::Type{T}, ::Type{$TYP{S,M}}) where {T,S,M} = $TYP{T,_to_eltype(T,M)}
     @eval elconvert(::Type{T}, A::S) where {T,S<:$TYP} = convert(_to_eltype(T, S), A)
 end
