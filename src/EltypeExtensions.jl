@@ -30,6 +30,7 @@ elconvert(::Type{T}, A::AbstractArray) where T = convert(AbstractArray{T}, A)
 elconvert(::Type{T}, A::AbstractRange) where T = map(T, A)
 elconvert(::Type{T}, A::AbstractUnitRange) where T<:Integer = convert(AbstractUnitRange{T}, A)
 elconvert(::Type{T}, A::Set) where T = convert(Set{T}, A)
+elconvert(::Type{T}, A::Tuple) where T = convert.(T, A)
 if !(AbstractQ <: AbstractMatrix) # see https://github.com/JuliaLang/julia/pull/46196
     elconvert(::Type{T}, A::AbstractQ) where T = convert(AbstractQ{T}, A)
 end
