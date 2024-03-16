@@ -26,6 +26,23 @@ using Aqua
     end
 end
 
+@testset "Misc" begin
+    @testset "Moved from DomainSets.jl" begin
+        @test elconvert(Float64, [1,2]) isa Vector{Float64}
+        @test elconvert(Float64, [1,2]) == [1,2]
+        @test elconvert(Float64, Set([1,2])) isa Set{Float64}
+        @test elconvert(Float64, Set([1,2])) == Set([1,2])
+        @test elconvert(Float64, 1:5) isa AbstractVector{Float64}
+        @test elconvert(Float64, 1:5) == 1:5
+        @test elconvert(Float64, 1) isa Float64
+        @test elconvert(Float64, 1) == 1
+
+        @test elconvert(Float64, Set([1,2])) isa Set{Float64}
+        @test elconvert(Float64, (1,2)) isa NTuple{2,Float64}
+        @test elconvert(Int, (1,2)) == (1,2)
+    end
+end
+
 @testset "Doctest" begin
     doctest(EltypeExtensions)
 end
