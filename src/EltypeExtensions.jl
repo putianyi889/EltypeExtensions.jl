@@ -20,7 +20,7 @@ end
 """
     elconvert(T, A)
 
-Similar to `convert(T, A)`, but `T` refers to the eltype.
+Similar to `convert(T, A)`, but `T` refers to the eltype. See also [`_to_eltype`](@ref).
 
 # Examples
 ```jldoctest; setup = :(using EltypeExtensions: elconvert)
@@ -40,16 +40,25 @@ elconvert(::Type{T}, A::Tuple) where T = convert.(T, A)
 """
     _to_eltype(T, S)
 
-Convert type `S` to have the `eltype` of `T`.
+Convert type `S` to have the `eltype` of `T`. See also [`elconvert`](@ref).
 """
-_to_eltype(::Type{T}, ::Type{S}) where {T,S} = eltype(S) == S ? T : MethodError(_to_eltype, T, S)
+_to_eltype(::Type{T}, ::Type{S}) where {T,S} = eltype(S) == S ? T : eltype(S) == T ? S : MethodError(_to_eltype, T, S)
 _to_eltype(::Type{T}, ::Type{Array{S,N}}) where {T,S,N} = Array{T,N}
 _to_eltype(::Type{T}, ::Type{<:Set}) where T = Set{T}
 for TYP in (Adjoint, Diagonal, Hermitian, Symmetric, SymTridiagonal, Transpose)
+    @eval _to_eltype(::Type{T}, ::Type{$TYP}) where T = $TYP{T}
+    @eval _to_eltype(::Type{T}, ::Type{$TYP{S}}) where {T,S} = $TYP{T}
     @eval _to_eltype(::Type{T}, ::Type{$TYP{S,M}}) where {T,S,M} = $TYP{T,_to_eltype(T,M)}
     @eval elconvert(::Type{T}, A::S) where {T,S<:$TYP} = convert(_to_eltype(T, S), A)
 end
 _to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Integer = UnitRange{T}
+
+@static if VERSION >= v"1.6"
+    _to_eltype(::Type{CartesianIndex{N}}, ::Type{CartesianIndices{N,R}}) where {N, R<:Tuple{Vararg{OrdinalRange{Int64, Int64}, N}}} = CartesianIndices{N,R}
+else
+    _to_eltype(::Type{CartesianIndex{N}}, ::Type{CartesianIndices{N,R}}) where {N, R<:Tuple{Vararg{AbstractUnitRange{Int64},N}}} = CartesianIndices{N,R}
+end
+_to_eltype(::Type{T}, ::Type{<:CartesianIndices}) where T = Array{T}
 
 @static if VERSION >= v"1.7"
     _to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Real = StepRangeLen{T,Base.TwicePrecision{T},Base.TwicePrecision{T},Int}
