@@ -16,7 +16,9 @@ end
     testelconvert(Float16, A')
     testelconvert(Float16, transpose(A))
     testelconvert(Float16, SymTridiagonal(Symmetric(A)))
-    testelconvert(Float16, UpperHessenberg(A))
+    if VERSION >= v"1.3"
+        testelconvert(Float16, UpperHessenberg(A))
+    end
     testelconvert(Float16, Hermitian(A))
     
     r = 1:5
