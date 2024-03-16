@@ -1,7 +1,7 @@
 module EltypeExtensions
 
 import Base: convert
-import LinearAlgebra: AbstractQ # to support 1.0, not using package extensions
+using LinearAlgebra # to support 1.0, not using package extensions
 
 export elconvert, basetype, baseconvert, precisiontype, precisionconvert
 
@@ -25,11 +25,10 @@ julia> typeof(elconvert(Float64, rand(Int, 3, 3)))
 $(repr("text/plain", Matrix{Float64}))
 ```
 """
-elconvert(::Type{T}, A::S) where {T,S} = eltype(S) == S ? convert(T, A) : throw(MethodError(elconvert, T, A))
+elconvert(::Type{T}, A::S) where {T,S} = convert(_to_eltype(T, S), A)
 elconvert(::Type{T}, A::AbstractArray) where T = convert(AbstractArray{T}, A)
 elconvert(::Type{T}, A::AbstractRange) where T = map(T, A)
 elconvert(::Type{T}, A::AbstractUnitRange) where T<:Integer = convert(AbstractUnitRange{T}, A)
-elconvert(::Type{T}, A::Set) where T = convert(Set{T}, A)
 elconvert(::Type{T}, A::Tuple) where T = convert.(T, A)
 if !(AbstractQ <: AbstractMatrix) # see https://github.com/JuliaLang/julia/pull/46196
     elconvert(::Type{T}, A::AbstractQ) where T = convert(AbstractQ{T}, A)
@@ -41,8 +40,9 @@ end
 Convert type `S` to have the `eltype` of `T`.
 """
 _to_eltype(::Type{T}, ::Type{Array{S,N}}) where {T,S,N} = Array{T,N}
-_to_eltype(::Type{T}, ::Type{Set}) where T = Set{T}
-_to_eltype(::Type{T}, ::Type{S}) where {T,S} = Base.return_types(elconvert, (Type{T}, S))
+_to_eltype(::Type{T}, ::Type{<:Set}) where T = Set{T}
+_to_eltype(::Type{T}, ::Type{Symmetric{S,M}}) where {T,S,M} = Symmetric{T,_to_eltype(T,M)}
+_to_eltype(::Type{T}, ::Type{<:UnitRange}) where T = UnitRange{T}
 
 nutype(x) = nutype(typeof(x))
 nutype(T::Type) = throw(MethodError(nutype, T))
