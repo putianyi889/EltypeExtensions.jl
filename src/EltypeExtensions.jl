@@ -45,6 +45,7 @@ _to_eltype(::Type{T}, ::Type{Array{S,N}}) where {T,S,N} = Array{T,N}
 _to_eltype(::Type{T}, ::Type{<:Set}) where T = Set{T}
 for TYP in (Adjoint, Diagonal, Symmetric, SymTridiagonal, Transpose)
     @eval _to_eltype(::Type{T}, ::Type{$TYP{S,M}}) where {T,S,M} = $TYP{T,_to_eltype(T,M)}
+    @eval elconvert(::Type{T}, A::S) where {T,S<:$TYP} = convert(_to_eltype(T, S), A)
 end
 _to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Integer = UnitRange{T}
 _to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Real = StepRangeLen{T,Base.TwicePrecision{T},Base.TwicePrecision{T},Int}
