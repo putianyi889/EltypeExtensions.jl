@@ -48,7 +48,12 @@ for TYP in (Adjoint, Diagonal, Symmetric, SymTridiagonal, Transpose, UpperHessen
     @eval elconvert(::Type{T}, A::S) where {T,S<:$TYP} = convert(_to_eltype(T, S), A)
 end
 _to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Integer = UnitRange{T}
-_to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Real = StepRangeLen{T,Base.TwicePrecision{T},Base.TwicePrecision{T},Int}
+
+@static if VERSION >= v"1.7"
+    _to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Real = StepRangeLen{T,Base.TwicePrecision{T},Base.TwicePrecision{T},Int}
+else
+    _to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Real = StepRangeLen{T,Base.TwicePrecision{T},Base.TwicePrecision{T}}
+end
 
 nutype(x) = nutype(typeof(x))
 nutype(T::Type) = throw(MethodError(nutype, T))
