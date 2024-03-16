@@ -25,10 +25,11 @@ julia> typeof(elconvert(Float64, rand(Int, 3, 3)))
 $(repr("text/plain", Matrix{Float64}))
 ```
 """
-elconvert(::Type{T}, A::AbstractArray) where T = AbstractArray{T}(A)
-elconvert(::Type{T}, A::AbstractRange) where T = T(first(A)):T(step(A)):T(last(A))
-elconvert(::Type{T}, A::AbstractUnitRange) where T<:Integer = AbstractUnitRange{T}(A)
-elconvert(::Type{T}, A::AbstractSet) where T = AbstractSet{T}(A)
+elconvert(::Type{T}, A::S) where {T,S} = eltype(S) == S ? convert(T, A) : throw(MethodError(elconvert, T, A))
+elconvert(::Type{T}, A::AbstractArray) where T = convert(AbstractArray{T}, A)
+elconvert(::Type{T}, A::AbstractRange) where T = map(T, A)
+elconvert(::Type{T}, A::AbstractUnitRange) where T<:Integer = convert(AbstractUnitRange{T}, A)
+elconvert(::Type{T}, A::Set) where T = convert(Set{T}, A)
 if !(AbstractQ <: AbstractMatrix) # see https://github.com/JuliaLang/julia/pull/46196
     elconvert(::Type{T}, A::AbstractQ) where T = convert(AbstractQ{T}, A)
 end
