@@ -10,7 +10,9 @@ export elconvert, basetype, baseconvert, precisiontype, precisionconvert
     _to_eltype(::Type{T}, ::Type{UpperHessenberg{S,M}}) where {T,S,M} = UpperHessenberg{T,_to_eltype(T,M)}
     elconvert(::Type{T}, A::UpperHessenberg{S,M}) where {T,S,M} = UpperHessenberg{T,_to_eltype(T,M)}(A)
 end
-@static if VERSION < v"1.9"
+@static if VERSION >= v"1.9"
+    elconvert(::Type{T}, A::S) where {T,S<:$TYP} = convert(_to_eltype(T, S), A)
+else
     elconvert(::Type{T}, A::Bidiagonal{S,V}) where {T,S,V} = Bidiagonal{T,_to_eltype(T,V)}(A.dv, A.ev, A.uplo)
 end
 @static if VERSION >= v"1.10" # see https://github.com/JuliaLang/julia/pull/46196
@@ -61,6 +63,10 @@ _to_eltype(::Type{T}, ::Type{BitArray}) where T = Array{T}
 _to_eltype(::Type{T}, ::Type{BitArray{N}}) where {T,N} = Array{T,N}
 _to_eltype(::Type{Bool}, ::Type{BitArray}) = BitArray
 _to_eltype(::Type{Bool}, ::Type{BitArray{N}}) where N = BitArray{N}
+
+_to_eltype(::Type{T}, ::Type{Bidiagonal}) where T = Bidiagonal{T}
+_to_eltype(::Type{T}, ::Type{Bidiagonal{S}}) where {T,S} = Bidiagonal{T}
+_to_eltype(::Type{T}, ::Type{Bidiagonal{S,M}}) where {T,S,M} = Bidiagonal{T,_to_eltype(T,M)}
 
 for TYP in (Adjoint, Bidiagonal, Diagonal, Hermitian, Symmetric, SymTridiagonal, Transpose)
     @eval _to_eltype(::Type{T}, ::Type{$TYP}) where T = $TYP{T}
