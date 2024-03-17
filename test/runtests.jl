@@ -20,6 +20,8 @@ end
         testelconvert(Float16, UpperHessenberg(A))
     end
     testelconvert(Float16, Hermitian(A))
+    testelconvert(Float16, Bidiagonal(A, :U))
+    testelconvert(Float16, Bidiagonal(A, :L))
     
     r = 1:5
     testelconvert(Int8, r)
