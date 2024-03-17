@@ -11,7 +11,7 @@ export elconvert, basetype, baseconvert, precisiontype, precisionconvert
     elconvert(::Type{T}, A::UpperHessenberg{S,M}) where {T,S,M} = UpperHessenberg{T,_to_eltype(T,M)}(A)
 end
 @static if VERSION >= v"1.9"
-    elconvert(::Type{T}, A::S) where {T,S<:$TYP} = convert(_to_eltype(T, S), A)
+    elconvert(::Type{T}, A::S) where {T,S<:Bidiagonal} = convert(_to_eltype(T, S), A)
 else
     elconvert(::Type{T}, A::Bidiagonal{S,V}) where {T,S,V} = Bidiagonal{T,_to_eltype(T,V)}(A.dv, A.ev, A.uplo)
 end
