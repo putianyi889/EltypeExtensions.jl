@@ -36,6 +36,8 @@ elconvert(::Type{T}, A::AbstractArray) where T = convert(AbstractArray{T}, A)
 elconvert(::Type{T}, A::AbstractRange) where T = map(T, A)
 elconvert(::Type{T}, A::AbstractUnitRange) where T<:Integer = convert(AbstractUnitRange{T}, A)
 elconvert(::Type{T}, A::Tuple) where T = convert.(T, A)
+elconvert(::Type{T}, A::Set{T}) where T = A
+elconvert(::Type{T}, A::Set) where T = Set(convert.(T, A))
 
 """
     _to_eltype(T, S)
@@ -51,6 +53,10 @@ _to_eltype(::Type{Pair{K,V}}, ::Type{<:Dict}) where {K,V} = Dict{K,V}
 _to_eltype(::Type{T}, ::Type{Array{S,N}}) where {T,S,N} = Array{T,N}
 _to_eltype(::Type{T}, ::Type{<:Set}) where T = Set{T}
 _to_eltype(::Type{T}, ::Type{<:TwicePrecision}) where T = TwicePrecision{T}
+
+_to_eltype(::Type{T}, ::Type{BitArray}) = Array{T}
+_to_eltype(::Type{T}, ::Type{BitArray{N}}) where {T,N} = Array{T,N}
+_to_eltype(::Type{Bool}, ::Type{S}) where S<:BitArray = S
 
 for TYP in (Adjoint, Bidiagonal, Diagonal, Hermitian, Symmetric, SymTridiagonal, Transpose)
     @eval _to_eltype(::Type{T}, ::Type{$TYP}) where T = $TYP{T}

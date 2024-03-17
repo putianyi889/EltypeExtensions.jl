@@ -23,6 +23,8 @@ end
     testelconvert(Float16, Bidiagonal(A, :U))
     testelconvert(Float16, Bidiagonal(A, :L))
     testelconvert(Float16, Set(A))
+    testelconvert(Bool, A .> 0.5)
+    testelconvert(Float16, A .> 0.5)
     
     r = 1:5
     testelconvert(Int8, r)
