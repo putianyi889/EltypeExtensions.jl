@@ -10,7 +10,7 @@ export elconvert, basetype, baseconvert, precisiontype, precisionconvert
     _to_eltype(::Type{T}, ::Type{UpperHessenberg{S,M}}) where {T,S,M} = UpperHessenberg{T,_to_eltype(T,M)}
     elconvert(::Type{T}, A::UpperHessenberg{S,M}) where {T,S,M} = UpperHessenberg{T,_to_eltype(T,M)}(A)
 end
-@static if VERSION >= v"1.9"
+@static if VERSION < v"1.9"
     elconvert(::Type{T}, A::Bidiagonal{S,V}) where {T,S,V} = Bidiagonal{T,_to_eltype(T,V)}(A.dv, A.ev, A.uplo)
 end
 @static if VERSION >= v"1.10" # see https://github.com/JuliaLang/julia/pull/46196
