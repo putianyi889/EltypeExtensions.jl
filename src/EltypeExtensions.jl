@@ -53,7 +53,6 @@ for TYP in (Adjoint, Bidiagonal, Diagonal, Hermitian, Symmetric, SymTridiagonal,
     @eval _to_eltype(::Type{T}, ::Type{$TYP{S,M}}) where {T,S,M} = $TYP{T,_to_eltype(T,M)}
     @eval elconvert(::Type{T}, A::S) where {T,S<:$TYP} = convert(_to_eltype(T, S), A)
 end
-_to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Integer = UnitRange{T}
 
 @static if VERSION >= v"1.6"
     _to_eltype(::Type{CartesianIndex{N}}, ::Type{CartesianIndices{N,R}}) where {N, R<:Tuple{Vararg{OrdinalRange{Int64, Int64}, N}}} = CartesianIndices{N,R}
@@ -63,10 +62,13 @@ end
 _to_eltype(::Type{T}, ::Type{<:CartesianIndices}) where T = Array{T}
 
 @static if VERSION >= v"1.7"
-    _to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Real = StepRangeLen{T,Base.TwicePrecision{T},Base.TwicePrecision{T},Int}
+    _to_eltype(::Type{T}, ::Type{<:StepRangeLen}) where T<:Real = StepRangeLen{T,_to_eltype(T,TwicePrecision),_to_eltype(T,TwicePrecision),Int}
+    
 else
-    _to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Real = StepRangeLen{T,Base.TwicePrecision{T},Base.TwicePrecision{T}}
+    _to_eltype(::Type{T}, ::Type{<:StepRangeLen}) where T<:Real = StepRangeLen{T,_to_eltype(T,TwicePrecision),_to_eltype(T,TwicePrecision)}
 end
+_to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Integer = UnitRange{T}
+_to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Real = _to_eltype(T, StepRangeLen)
 
 nutype(x) = nutype(typeof(x))
 nutype(T::Type) = throw(MethodError(nutype, T))
