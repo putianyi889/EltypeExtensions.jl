@@ -1,6 +1,6 @@
 module EltypeExtensions
 
-import Base: convert
+import Base: convert, TwicePrecision
 using LinearAlgebra # to support 1.0, not using package extensions
 import LinearAlgebra: AbstractQ
 
@@ -9,6 +9,11 @@ export elconvert, basetype, baseconvert, precisiontype, precisionconvert
 @static if VERSION >= v"1.3"
     _to_eltype(::Type{T}, ::Type{UpperHessenberg{S,M}}) where {T,S,M} = UpperHessenberg{T,_to_eltype(T,M)}
     elconvert(::Type{T}, A::UpperHessenberg{S,M}) where {T,S,M} = UpperHessenberg{T,_to_eltype(T,M)}(A)
+end
+@static if VERSION >= v"1.9"
+    elconvert(::Type{T}, A::S) where {T,S<:Bidiagonal} = convert(_to_eltype(T, S), A)
+else
+    elconvert(::Type{T}, A::Bidiagonal{S,V}) where {T,S,V} = Bidiagonal{T,_to_eltype(T,V)}(A.dv, A.ev, A.uplo)
 end
 @static if VERSION >= v"1.10" # see https://github.com/JuliaLang/julia/pull/46196
     elconvert(::Type{T}, A::AbstractQ) where T = convert(AbstractQ{T}, A)
@@ -36,6 +41,8 @@ elconvert(::Type{T}, A::AbstractArray) where T = convert(AbstractArray{T}, A)
 elconvert(::Type{T}, A::AbstractRange) where T = map(T, A)
 elconvert(::Type{T}, A::AbstractUnitRange) where T<:Integer = convert(AbstractUnitRange{T}, A)
 elconvert(::Type{T}, A::Tuple) where T = convert.(T, A)
+elconvert(::Type{T}, A::Set{T}) where T = A
+elconvert(::Type{T}, A::Set) where T = Set(convert.(T, A))
 
 """
     _to_eltype(T, S)
@@ -43,15 +50,30 @@ elconvert(::Type{T}, A::Tuple) where T = convert.(T, A)
 Convert type `S` to have the `eltype` of `T`. See also [`elconvert`](@ref).
 """
 _to_eltype(::Type{T}, ::Type{S}) where {T,S} = eltype(S) == S ? T : eltype(S) == T ? S : MethodError(_to_eltype, T, S)
+_to_eltype(::Type{T}, ::Type{<:AbstractArray{S,N}}) where {T,S,N} = AbstractArray{T,N}
+_to_eltype(::Type{T}, ::Type{<:AbstractSet}) where T = AbstractSet{T}
+_to_eltype(::Type{Pair{K,V}}, ::Type{<:AbstractDict}) where {K,V} = AbstractDict{K,V}
+_to_eltype(::Type{Pair{K,V}}, ::Type{<:Dict}) where {K,V} = Dict{K,V}
+
 _to_eltype(::Type{T}, ::Type{Array{S,N}}) where {T,S,N} = Array{T,N}
 _to_eltype(::Type{T}, ::Type{<:Set}) where T = Set{T}
+_to_eltype(::Type{T}, ::Type{<:TwicePrecision}) where T = TwicePrecision{T}
+
+_to_eltype(::Type{T}, ::Type{BitArray}) where T = Array{T}
+_to_eltype(::Type{T}, ::Type{BitArray{N}}) where {T,N} = Array{T,N}
+_to_eltype(::Type{Bool}, ::Type{BitArray}) = BitArray
+_to_eltype(::Type{Bool}, ::Type{BitArray{N}}) where N = BitArray{N}
+
+_to_eltype(::Type{T}, ::Type{Bidiagonal}) where T = Bidiagonal{T}
+_to_eltype(::Type{T}, ::Type{Bidiagonal{S}}) where {T,S} = Bidiagonal{T}
+_to_eltype(::Type{T}, ::Type{Bidiagonal{S,M}}) where {T,S,M} = Bidiagonal{T,_to_eltype(T,M)}
+
 for TYP in (Adjoint, Diagonal, Hermitian, Symmetric, SymTridiagonal, Transpose)
     @eval _to_eltype(::Type{T}, ::Type{$TYP}) where T = $TYP{T}
     @eval _to_eltype(::Type{T}, ::Type{$TYP{S}}) where {T,S} = $TYP{T}
     @eval _to_eltype(::Type{T}, ::Type{$TYP{S,M}}) where {T,S,M} = $TYP{T,_to_eltype(T,M)}
     @eval elconvert(::Type{T}, A::S) where {T,S<:$TYP} = convert(_to_eltype(T, S), A)
 end
-_to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Integer = UnitRange{T}
 
 @static if VERSION >= v"1.6"
     _to_eltype(::Type{CartesianIndex{N}}, ::Type{CartesianIndices{N,R}}) where {N, R<:Tuple{Vararg{OrdinalRange{Int64, Int64}, N}}} = CartesianIndices{N,R}
@@ -61,10 +83,13 @@ end
 _to_eltype(::Type{T}, ::Type{<:CartesianIndices}) where T = Array{T}
 
 @static if VERSION >= v"1.7"
-    _to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Real = StepRangeLen{T,Base.TwicePrecision{T},Base.TwicePrecision{T},Int}
+    _to_eltype(::Type{T}, ::Type{<:StepRangeLen}) where T<:Real = StepRangeLen{T,_to_eltype(T,TwicePrecision),_to_eltype(T,TwicePrecision),Int}
+    
 else
-    _to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Real = StepRangeLen{T,Base.TwicePrecision{T},Base.TwicePrecision{T}}
+    _to_eltype(::Type{T}, ::Type{<:StepRangeLen}) where T<:Real = StepRangeLen{T,_to_eltype(T,TwicePrecision),_to_eltype(T,TwicePrecision)}
 end
+_to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Integer = UnitRange{T}
+_to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Real = _to_eltype(T, StepRangeLen)
 
 nutype(x) = nutype(typeof(x))
 nutype(T::Type) = throw(MethodError(nutype, T))

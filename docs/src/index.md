@@ -6,8 +6,22 @@ We note that this package has some overlap with [TypeUtils.jl](https://github.co
 
 ## Introduction
 
-### `elconvert`
+### `elconvert` and `_to_eltype`
 `elconvert(T, x)` works like `convert(T, x)`, except that `T` refers to the eltype of the result. This can be useful for generic codes.
+
+It should be always true that `elconvert(T, x) isa _to_eltype(T, typeof(x))`. However, since `elconvert` and `_to_eltype` use different routines, it's possible that the equality doesn't hold for some types. Please submit an issue or PR if that happens.
+
+If `typeof(x)` is not in Base or stdlib, the package who owns the type should implement corresponding `_to_eltype` or `elconvert`. `elconvert` has fallbacks, in which case it could be unnecessary:
+- For a subtype of `AbstractArray`, `elconvert` calls the constructor `AbstractArray{T}` and `_to_eltype` returns `Array`.
+- For a subtype of `AbstractUnitRange`, `elconvert` calls the constructor `AbstractUnitRange{T}`.
+- For a subtype of `AbstractRange`, `elconvert` uses broadcast through `map`.
+- For a `Tuple`, `elconvert` uses dot broadcast.
+- For other types, `elconvert` calls `convert` and `_to_eltype`.
+
+However, `_to_eltype` must be implemented for each type to support `baseconvert` and `precisionconvert`. The following types from Base and stdlib are explicitly supported by `_to_eltype`:
+```
+AbstractArray, AbstractDict, AbstractSet, Adjoint, Bidiagonal, BitArray, CartesianIndices, Diagonal, Dict, Hermitian, Set, StepRangeLen, Symmetric, SymTridiagonal, Transpose, TwicePrecision, UnitRange
+```
 
 ### `basetype` and `precisiontype`
 The `basetype` is used for nested collections, where `eltype` is repeatedly applied until the bottom. `precisiontype` has a similar idea, but goes deeper when possible. `precisiontype` is used to manipulate the accuracy of (nested) collections.
