@@ -22,6 +22,7 @@ end
     testelconvert(Float16, Hermitian(A))
     testelconvert(Float16, Bidiagonal(A, :U))
     testelconvert(Float16, Bidiagonal(A, :L))
+    testelconvert(Float16, Set(A))
     
     r = 1:5
     testelconvert(Int8, r)
@@ -30,6 +31,9 @@ end
     inds = CartesianIndex(1,1):CartesianIndex(3,3)
     testelconvert(CartesianIndex{2}, inds)
     testelconvert(Tuple, inds)
+
+    dict = Dict(1=>2)
+    testelconvert(Pair{Float64,Float32}, dict)
 end
 
 @testset "bugs" begin
