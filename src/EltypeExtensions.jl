@@ -54,9 +54,10 @@ _to_eltype(::Type{T}, ::Type{Array{S,N}}) where {T,S,N} = Array{T,N}
 _to_eltype(::Type{T}, ::Type{<:Set}) where T = Set{T}
 _to_eltype(::Type{T}, ::Type{<:TwicePrecision}) where T = TwicePrecision{T}
 
-_to_eltype(::Type{T}, ::Type{BitArray}) = Array{T}
+_to_eltype(::Type{T}, ::Type{BitArray}) where T = Array{T}
 _to_eltype(::Type{T}, ::Type{BitArray{N}}) where {T,N} = Array{T,N}
-_to_eltype(::Type{Bool}, ::Type{S}) where S<:BitArray = S
+_to_eltype(::Type{Bool}, ::Type{BitArray}) = BitArray
+_to_eltype(::Type{Bool}, ::Type{BitArray{N}}) where N = BitArray{N}
 
 for TYP in (Adjoint, Bidiagonal, Diagonal, Hermitian, Symmetric, SymTridiagonal, Transpose)
     @eval _to_eltype(::Type{T}, ::Type{$TYP}) where T = $TYP{T}
