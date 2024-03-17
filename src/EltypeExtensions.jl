@@ -68,7 +68,7 @@ _to_eltype(::Type{T}, ::Type{Bidiagonal}) where T = Bidiagonal{T}
 _to_eltype(::Type{T}, ::Type{Bidiagonal{S}}) where {T,S} = Bidiagonal{T}
 _to_eltype(::Type{T}, ::Type{Bidiagonal{S,M}}) where {T,S,M} = Bidiagonal{T,_to_eltype(T,M)}
 
-for TYP in (Adjoint, Bidiagonal, Diagonal, Hermitian, Symmetric, SymTridiagonal, Transpose)
+for TYP in (Adjoint, Diagonal, Hermitian, Symmetric, SymTridiagonal, Transpose)
     @eval _to_eltype(::Type{T}, ::Type{$TYP}) where T = $TYP{T}
     @eval _to_eltype(::Type{T}, ::Type{$TYP{S}}) where {T,S} = $TYP{T}
     @eval _to_eltype(::Type{T}, ::Type{$TYP{S,M}}) where {T,S,M} = $TYP{T,_to_eltype(T,M)}
