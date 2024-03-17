@@ -1,6 +1,6 @@
 module EltypeExtensions
 
-import Base: convert
+import Base: convert, TwicePrecision
 using LinearAlgebra # to support 1.0, not using package extensions
 import LinearAlgebra: AbstractQ
 
@@ -45,6 +45,8 @@ Convert type `S` to have the `eltype` of `T`. See also [`elconvert`](@ref).
 _to_eltype(::Type{T}, ::Type{S}) where {T,S} = eltype(S) == S ? T : eltype(S) == T ? S : MethodError(_to_eltype, T, S)
 _to_eltype(::Type{T}, ::Type{Array{S,N}}) where {T,S,N} = Array{T,N}
 _to_eltype(::Type{T}, ::Type{<:Set}) where T = Set{T}
+_to_eltype(::Type{T}, ::Type{<:TwicePrecision}) where T = TwicePrecision{T}
+
 for TYP in (Adjoint, Bidiagonal, Diagonal, Hermitian, Symmetric, SymTridiagonal, Transpose)
     @eval _to_eltype(::Type{T}, ::Type{$TYP}) where T = $TYP{T}
     @eval _to_eltype(::Type{T}, ::Type{$TYP{S}}) where {T,S} = $TYP{T}
