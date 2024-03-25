@@ -26,7 +26,9 @@ If `typeof(x)` is not in Base or stdlib, the package who owns the type should im
 
 However, `_to_eltype` must be implemented for each type to support `baseconvert` and `precisionconvert`. The following types from Base and stdlib are explicitly supported by `_to_eltype`:
 ```
-AbstractArray, AbstractDict, AbstractSet, Adjoint, Bidiagonal, BitArray, CartesianIndices, Diagonal, Dict, Hermitian, Set, StepRangeLen, Symmetric, SymTridiagonal, Transpose, TwicePrecision, UnitRange
+AbstractArray, AbstractDict, AbstractSet, Adjoint, Bidiagonal, BitArray,
+CartesianIndices, Diagonal, Dict, Hermitian, Set, StepRangeLen, Symmetric,
+SymTridiagonal, Transpose, TwicePrecision, UnitRange
 ```
 
 ### `basetype` and `precisiontype`
