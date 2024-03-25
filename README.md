@@ -45,5 +45,5 @@ where `some` can be `el`, `base` and `precision`.
 ### On `precisionconvert`
 `precisionconvert` accepts an optional third argument `prec`. 
 - When `T` has static precision, `prec` has no effect.
-- When `T` has dynamic precision, `prec` specifies the precision of conversion. When `prec` is not provided, the precision is decided by the external setup from `T`. The difference is significant when `precisionconvert` is called by another function:
+- When `T` has dynamic precision, `prec` specifies the precision of conversion. When `prec` is not provided, the precision is decided by the external setup from `T`. The difference is significant when `precisionconvert` is called by another function. See the document for an example.
 - When `T` is an integer, the conversion will dig into `Rational` as well. In contrast, since `Rational` as a whole is more "precise" than an integer, `precisiontype` doesn't unwrap `Rational`.
