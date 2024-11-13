@@ -15,8 +15,8 @@ end
 else
     elconvert(::Type{T}, A::Bidiagonal{S,V}) where {T,S,V} = Bidiagonal{T,_to_eltype(T,V)}(A.dv, A.ev, A.uplo)
 end
-@static if VERSION >= v"1.10" # see https://github.com/JuliaLang/julia/pull/46196
-    elconvert(::Type{T}, A::AbstractQ) where T = convert(AbstractQ{T}, A)
+@static if VERSION >= v"1.10"
+    elconvert(::Type{T}, A::AbstractQ) where T = convert(AbstractQ{T}, A) # see https://github.com/JuliaLang/julia/pull/46196
     @inline bigfloatconvert(x, prec) = BigFloat(x, precision = prec)
 else
     @inline bigfloatconvert(x, prec) = BigFloat(x, prec)
