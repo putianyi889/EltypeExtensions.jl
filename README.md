@@ -6,7 +6,6 @@
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://putianyi889.github.io/EltypeExtensions.jl/dev)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![codecov](https://codecov.io/gh/putianyi889/EltypeExtensions.jl/branch/master/graph/badge.svg?label=codecov)](https://codecov.io/gh/putianyi889/EltypeExtensions.jl)
-[![deps](https://juliahub.com/docs/General/EltypeExtensions/stable/deps.svg)](https://juliahub.com/ui/Packages/General/EltypeExtensions?t=2)
 [![pkgeval](https://juliahub.com/docs/General/EltypeExtensions/stable/pkgeval.svg)](https://juliahub.com/ui/Packages/General/EltypeExtensions)
 
 EltypeExtensions.jl is a mini toolbox for eltype-related conversions. The motivation of this package comes from manipulating (nested) arrays with different eltypes. However if you have any reasonable idea that works on other instances, feel free to write an issue/pull request.
