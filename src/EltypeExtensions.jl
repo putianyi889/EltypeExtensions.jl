@@ -10,6 +10,11 @@ export elconvert, basetype, baseconvert, precisiontype, precisionconvert
     _to_eltype(::Type{T}, ::Type{UpperHessenberg{S,M}}) where {T,S,M} = UpperHessenberg{T,_to_eltype(T,M)}
     elconvert(::Type{T}, A::UpperHessenberg{S,M}) where {T,S,M} = UpperHessenberg{T,_to_eltype(T,M)}(A)
 end
+@static if VERSION >= v"1.5"
+    @inline bigfloatconvert(x, prec) = BigFloat(x, precision = prec)
+else
+    @inline bigfloatconvert(x, prec) = BigFloat(x, prec)
+end
 @static if VERSION >= v"1.9"
     elconvert(::Type{T}, A::S) where {T,S<:Bidiagonal} = convert(_to_eltype(T, S), A)
 else
@@ -17,9 +22,6 @@ else
 end
 @static if VERSION >= v"1.10"
     elconvert(::Type{T}, A::AbstractQ) where T = convert(AbstractQ{T}, A) # see https://github.com/JuliaLang/julia/pull/46196
-    @inline bigfloatconvert(x, prec) = BigFloat(x, precision = prec)
-else
-    @inline bigfloatconvert(x, prec) = BigFloat(x, prec)
 end
 
 """
