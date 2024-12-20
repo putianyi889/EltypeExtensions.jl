@@ -4,11 +4,11 @@ import Base: convert, TwicePrecision
 using LinearAlgebra # to support 1.0, not using package extensions
 import LinearAlgebra: AbstractQ
 
-export elconvert, basetype, baseconvert, precisiontype, precisionconvert
+export convert_eltype, basetype, convert_basetype, precisiontype, convert_precisiontype
 
 @static if VERSION >= v"1.3"
     _to_eltype(::Type{T}, ::Type{UpperHessenberg{S,M}}) where {T,S,M} = UpperHessenberg{T,_to_eltype(T,M)}
-    elconvert(::Type{T}, A::UpperHessenberg{S,M}) where {T,S,M} = UpperHessenberg{T,_to_eltype(T,M)}(A)
+    convert_eltype(::Type{T}, A::UpperHessenberg{S,M}) where {T,S,M} = UpperHessenberg{T,_to_eltype(T,M)}(A)
 end
 @static if VERSION >= v"1.5"
     @inline bigfloatconvert(x, prec) = BigFloat(x, precision = prec)
@@ -16,40 +16,40 @@ else
     @inline bigfloatconvert(x, prec) = BigFloat(x, prec)
 end
 @static if VERSION >= v"1.9"
-    elconvert(::Type{T}, A::S) where {T,S<:Bidiagonal} = convert(_to_eltype(T, S), A)
+    convert_eltype(::Type{T}, A::S) where {T,S<:Bidiagonal} = convert(_to_eltype(T, S), A)
 else
-    elconvert(::Type{T}, A::Bidiagonal{S,V}) where {T,S,V} = Bidiagonal{T,_to_eltype(T,V)}(A.dv, A.ev, A.uplo)
+    convert_eltype(::Type{T}, A::Bidiagonal{S,V}) where {T,S,V} = Bidiagonal{T,_to_eltype(T,V)}(A.dv, A.ev, A.uplo)
 end
 @static if VERSION >= v"1.10"
-    elconvert(::Type{T}, A::AbstractQ) where T = convert(AbstractQ{T}, A) # see https://github.com/JuliaLang/julia/pull/46196
+    convert_eltype(::Type{T}, A::AbstractQ) where T = convert(AbstractQ{T}, A) # see https://github.com/JuliaLang/julia/pull/46196
 end
 
 """
-    elconvert(T, A)
+    convert_eltype(T, A)
 
 Similar to `convert(T, A)`, but `T` refers to the eltype. See also [`_to_eltype`](@ref).
 
 # Examples
-```jldoctest; setup = :(using EltypeExtensions: elconvert)
-julia> elconvert(Float64, 1:10)
+```jldoctest; setup = :(using EltypeExtensions: convert_eltype)
+julia> convert_eltype(Float64, 1:10)
 1.0:1.0:10.0
 
-julia> typeof(elconvert(Float64, rand(Int, 3, 3)))
+julia> typeof(convert_eltype(Float64, rand(Int, 3, 3)))
 $(repr("text/plain", Matrix{Float64}))
 ```
 """
-elconvert(::Type{T}, A::S) where {T,S} = convert(_to_eltype(T, S), A)
-elconvert(::Type{T}, A::AbstractArray) where T = convert(AbstractArray{T}, A)
-elconvert(::Type{T}, A::AbstractRange) where T = map(T, A)
-elconvert(::Type{T}, A::AbstractUnitRange) where T<:Integer = convert(AbstractUnitRange{T}, A)
-elconvert(::Type{T}, A::Tuple) where T = convert.(T, A)
-elconvert(::Type{T}, A::Set{T}) where T = A
-elconvert(::Type{T}, A::Set) where T = Set(convert.(T, A))
+convert_eltype(::Type{T}, A::S) where {T,S} = convert(_to_eltype(T, S), A)
+convert_eltype(::Type{T}, A::AbstractArray) where T = convert(AbstractArray{T}, A)
+convert_eltype(::Type{T}, A::AbstractRange) where T = map(T, A)
+convert_eltype(::Type{T}, A::AbstractUnitRange) where T<:Integer = convert(AbstractUnitRange{T}, A)
+convert_eltype(::Type{T}, A::Tuple) where T = convert.(T, A)
+convert_eltype(::Type{T}, A::Set{T}) where T = A
+convert_eltype(::Type{T}, A::Set) where T = Set(convert.(T, A))
 
 """
     _to_eltype(T, S)
 
-Convert type `S` to have the `eltype` of `T`. See also [`elconvert`](@ref).
+Convert type `S` to have the `eltype` of `T`. See also [`convert_eltype`](@ref).
 """
 _to_eltype(::Type{T}, ::Type{S}) where {T,S} = eltype(S) == S ? T : eltype(S) == T ? S : MethodError(_to_eltype, T, S)
 _to_eltype(::Type{T}, ::Type{<:AbstractArray{S,N}}) where {T,S,N} = AbstractArray{T,N}
@@ -74,7 +74,7 @@ for TYP in (Adjoint, Diagonal, Hermitian, Symmetric, SymTridiagonal, Transpose)
     @eval _to_eltype(::Type{T}, ::Type{$TYP}) where T = $TYP{T}
     @eval _to_eltype(::Type{T}, ::Type{$TYP{S}}) where {T,S} = $TYP{T}
     @eval _to_eltype(::Type{T}, ::Type{$TYP{S,M}}) where {T,S,M} = $TYP{T,_to_eltype(T,M)}
-    @eval elconvert(::Type{T}, A::S) where {T,S<:$TYP} = convert(_to_eltype(T, S), A)
+    @eval convert_eltype(::Type{T}, A::S) where {T,S<:$TYP} = convert(_to_eltype(T, S), A)
 end
 
 @static if VERSION >= v"1.6"
@@ -86,7 +86,6 @@ _to_eltype(::Type{T}, ::Type{<:CartesianIndices}) where T = Array{T}
 
 @static if VERSION >= v"1.7"
     _to_eltype(::Type{T}, ::Type{<:StepRangeLen}) where T<:Real = StepRangeLen{T,_to_eltype(T,TwicePrecision),_to_eltype(T,TwicePrecision),Int}
-    
 else
     _to_eltype(::Type{T}, ::Type{<:StepRangeLen}) where T<:Real = StepRangeLen{T,_to_eltype(T,TwicePrecision),_to_eltype(T,TwicePrecision)}
 end
@@ -124,11 +123,11 @@ Convert type `S` to have the [`basetype`](@ref) of `T`.
 _to_basetype(::Type{T}, ::Type{S}) where {T,S} = eltype(S) == S ? T : _to_eltype(_to_basetype(T, eltype(S)), S)
 
 """
-    baseconvert(T::Type, A)
+    convert_basetype(T::Type, A)
 
 Similar to `convert(T, A)`, but `T` refers to the [`basetype`](@ref).
 """
-baseconvert(::Type{T}, A::S) where {T,S} = convert(_to_basetype(T,S), A)
+convert_basetype(::Type{T}, A::S) where {T,S} = convert(_to_basetype(T,S), A)
 
 """
     precisiontype(T::Type)
@@ -172,7 +171,7 @@ _to_precisiontype(::Type{T}, ::Type{<:Rational}) where T<:Integer = Rational{T}
 _to_precisiontype(::Type{T}, ::Type{S}) where {T,S} = eltype(S) == S ? T : _to_eltype(_to_precisiontype(T, eltype(S)), S)
 
 """
-    precisionconvert(T::Type, A, prec)
+    convert_precisiontype(T::Type, A, prec)
 
 Convert `A` to have the [`precisiontype`](@ref) of `T`. `prec` is optional.
 - When `T` has static precision (e.g. `Float64`), `prec` has no effect.
@@ -180,22 +179,24 @@ Convert `A` to have the [`precisiontype`](@ref) of `T`. `prec` is optional.
 - When `T` is an integer, the conversion will dig into `Rational` as well. In contrast, since `Rational` as a whole is more "precise" than an integer, [`precisiontype`](@ref) doesn't unwrap `Rational`.
 
 # Examples
-```jldoctest; setup = :(using EltypeExtensions: precisionconvert)
-julia> precisionconvert(BigFloat, 1//3+im, 128)
+```jldoctest; setup = :(using EltypeExtensions: convert_precisiontype)
+julia> convert_precisiontype(BigFloat, 1//3+im, 128)
 $(repr(bigfloatconvert(1//3, 128))) + 1.0im
 
-julia> precisionconvert(Float16, [[m/n for n in 1:3] for m in 1:3])
+julia> convert_precisiontype(Float16, [[m/n for n in 1:3] for m in 1:3])
 3-element $(repr(Vector{Vector{Float16}})):
  [1.0, 0.5, 0.3333]
  [2.0, 1.0, 0.6665]
  [3.0, 1.5, 1.0]
 ```
 """
-precisionconvert(::Type{T}, A::S) where {T,S} = convert(_to_precisiontype(T,S), A)
-precisionconvert(::Type{T}, A::S, prec) where {T,S} = precisionconvert(T, A)
-precisionconvert(::Type{BigFloat}, A::S) where {S} = convert(_to_precisiontype(BigFloat,S), A)
-precisionconvert(::Type{BigFloat}, x::Real, prec) = bigfloatconvert(x, prec)
-precisionconvert(::Type{BigFloat}, x::Complex, prec) = Complex(bigfloatconvert(real(x), prec), bigfloatconvert(imag(x), prec))
-precisionconvert(::Type{BigFloat}, A, prec) = precisionconvert.(BigFloat, A, prec)
+convert_precisiontype(::Type{T}, A::S) where {T,S} = convert(_to_precisiontype(T,S), A)
+convert_precisiontype(::Type{T}, A::S, prec) where {T,S} = convert_precisiontype(T, A)
+convert_precisiontype(::Type{BigFloat}, A::S) where {S} = convert(_to_precisiontype(BigFloat,S), A)
+convert_precisiontype(::Type{BigFloat}, x::Real, prec) = bigfloatconvert(x, prec)
+convert_precisiontype(::Type{BigFloat}, x::Complex, prec) = Complex(bigfloatconvert(real(x), prec), bigfloatconvert(imag(x), prec))
+convert_precisiontype(::Type{BigFloat}, A, prec) = convert_precisiontype.(BigFloat, A, prec)
+
+include("deprecated.jl")
 
 end

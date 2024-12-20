@@ -6,19 +6,19 @@ We note that this package has some overlap with [TypeUtils.jl](https://github.co
 
 ## Introduction
 
-### `elconvert` and `_to_eltype`
-`elconvert(T, x)` works like `convert(T, x)`, except that `T` refers to the eltype of the result. This can be useful for generic codes.
+### `convert_eltype` and `_to_eltype`
+`convert_eltype(T, x)` works like `convert(T, x)`, except that `T` refers to the eltype of the result. This can be useful for generic codes.
 
-It should be always true that `elconvert(T, x) isa _to_eltype(T, typeof(x))`. However, since `elconvert` and `_to_eltype` use different routines, it's possible that the equality doesn't hold for some types. Please submit an issue or PR if that happens.
+It should be always true that `convert_eltype(T, x) isa _to_eltype(T, typeof(x))`. However, since `convert_eltype` and `_to_eltype` use different routines, it's possible that the equality doesn't hold for some types. Please submit an issue or PR if that happens.
 
-If `typeof(x)` is not in Base or stdlib, the package who owns the type should implement corresponding `_to_eltype` or `elconvert`. `elconvert` has fallbacks, in which case it could be unnecessary:
-- For a subtype of `AbstractArray`, `elconvert` calls the constructor `AbstractArray{T}` and `_to_eltype` returns `Array`.
-- For a subtype of `AbstractUnitRange`, `elconvert` calls the constructor `AbstractUnitRange{T}`.
-- For a subtype of `AbstractRange`, `elconvert` uses broadcast through `map`.
-- For a `Tuple`, `elconvert` uses dot broadcast.
-- For other types, `elconvert` calls `convert` and `_to_eltype`.
+If `typeof(x)` is not in Base or stdlib, the package who owns the type should implement corresponding `_to_eltype` or `convert_eltype`. `convert_eltype` has fallbacks, in which case it could be unnecessary:
+- For a subtype of `AbstractArray`, `convert_eltype` calls the constructor `AbstractArray{T}` and `_to_eltype` returns `Array`.
+- For a subtype of `AbstractUnitRange`, `convert_eltype` calls the constructor `AbstractUnitRange{T}`.
+- For a subtype of `AbstractRange`, `convert_eltype` uses broadcast through `map`.
+- For a `Tuple`, `convert_eltype` uses dot broadcast.
+- For other types, `convert_eltype` calls `convert` and `_to_eltype`.
 
-However, `_to_eltype` must be implemented for each type to support `baseconvert` and `precisionconvert`. The following types from Base and stdlib are explicitly supported by `_to_eltype`:
+However, `_to_eltype` must be implemented for each type to support `convert_basetype` and `convert_precisiontype`. The following types from Base and stdlib are explicitly supported by `_to_eltype`:
 ```
 AbstractArray, AbstractDict, AbstractSet, Adjoint, Bidiagonal, BitArray, CartesianIndices, Diagonal, Dict, Hermitian, Set, StepRangeLen, Symmetric, SymTridiagonal, Transpose, TwicePrecision, UnitRange
 ```
@@ -37,23 +37,23 @@ precisiontype(Set{Matrix{Vector{Matrix{Complex{Rational{Int}}}}}})
 - `sometype(T)` gets the `sometype` of type `T`.
 - `sometype(x) = sometype(typeof(x))` is also provided for convenience.
 - `_to_sometype(T,S)` converts the type `S` to have the `sometype` of `T`.
-- `someconvert(T,A)` converts `A` to have the `sometype` of `T`.
+- `convert_sometype(T,A)` converts `A` to have the `sometype` of `T`.
 
 where `some` can be `el`, `base` and `precision`.
 
-### On `precisionconvert`
-`precisionconvert` accepts an optional third argument `prec`. 
+### On `convert_precisiontype`
+`convert_precisiontype` accepts an optional third argument `prec`. 
 - When `T` has static precision, `prec` has no effect.
-- When `T` has dynamic precision, `prec` specifies the precision of conversion. When `prec` is not provided, the precision is decided by the external setup from `T`. The difference is significant when `precisionconvert` is called by another function:
+- When `T` has dynamic precision, `prec` specifies the precision of conversion. When `prec` is not provided, the precision is decided by the external setup from `T`. The difference is significant when `convert_precisiontype` is called by another function:
   ```@repl 1
   precision(BigFloat)
-  f(x) = precisionconvert(BigFloat, x, 256)
-  g(x) = precisionconvert(BigFloat, x)
+  f(x) = convert_precisiontype(BigFloat, x, 256)
+  g(x) = convert_precisiontype(BigFloat, x)
   setprecision(128)
   f(π) # static precision
   g(π) # precision varies with the global setting
   ```
 - When `T` is an integer, the conversion will dig into `Rational` as well. In contrast, since `Rational` as a whole is more "precise" than an integer, `precisiontype` doesn't unwrap `Rational`.
   ```@repl 1
-  precisiontype(precisionconvert(Int128, Int8(1)//Int8(2)))
+  precisiontype(convert_precisiontype(Int128, Int8(1)//Int8(2)))
   ```
