@@ -1,0 +1,3 @@
+@deprecate elconvert convert_eltype
+@deprecate baseconvert convert_basetype
+@deprecate precisionconvert convert_precisiontype
