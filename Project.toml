@@ -1,7 +1,7 @@
 name = "EltypeExtensions"
 uuid = "583f92f5-06d6-4306-8236-316410defc98"
 authors = ["Tianyi Pu <912396513@qq.com> and contributors"]
-version = "0.0.5"
+version = "0.1.0"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
