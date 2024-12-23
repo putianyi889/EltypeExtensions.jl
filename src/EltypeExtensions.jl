@@ -73,7 +73,11 @@ for TYP in (Adjoint, Diagonal, Hermitian, Symmetric, SymTridiagonal, Transpose)
     @eval _to_eltype(::Type{T}, ::Type{$TYP}) where T = $TYP{T}
     @eval _to_eltype(::Type{T}, ::Type{$TYP{S}}) where {T,S} = $TYP{T}
     @eval _to_eltype(::Type{T}, ::Type{$TYP{S,M}}) where {T,S,M} = $TYP{T,_to_eltype(T,M)}
-    @eval convert_eltype(::Type{T}, A::S) where {T,S<:$TYP} = convert(_to_eltype(T, S), A)
+    if TYP == SymTridiagonal
+        @eval convert_eltype(::Type{T}, A::SymTridiagonal) where {T} = SymTridiagonal(convert_eltype(T, A.dv), convert_eltype(T, A.ev))
+    else
+        @eval convert_eltype(::Type{T}, A::$TYP) where {T} = $TYP(convert_eltype(T, parent(A)))
+    end
 end
 
 @static if VERSION >= v"1.6"

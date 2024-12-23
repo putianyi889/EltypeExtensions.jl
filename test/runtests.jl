@@ -62,6 +62,10 @@ end
     @testset "#10" begin
         @test convert_eltype(Int32, 1:5) === Int32(1):Int32(5)
     end
+
+    @testset "#31" begin
+        @test convert_eltype(Float64, Diagonal(1:5)) ≡ Diagonal(1.0:5.0)
+    end
 end
 
 @testset "Misc" begin
