@@ -57,3 +57,17 @@ where `some` can be `el`, `base` and `precision`.
   ```@repl 1
   precisiontype(convert_precisiontype(Int128, Int8(1)//Int8(2)))
   ```
+
+## Notable behaviours
+
+### Ranges
+Ranges in Julia are not consistently processed:
+```@repl 1
+r = StepRange(1,1,5)
+Float64.(r) |> typeof
+map(Float64,r) |> typeof
+```
+We adapt `_to_eltype` to the return type of `Base.map`:
+```@repl 1
+_to_eltype(Float64, StepRange{Int,Int})
+```

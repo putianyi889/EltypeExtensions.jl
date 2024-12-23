@@ -39,7 +39,6 @@ $(repr("text/plain", Matrix{Float64}))
 ```
 """
 convert_eltype(::Type{T}, A::S) where {T,S} = convert(_to_eltype(T, S), A)
-convert_eltype(::Type{T}, A::AbstractArray) where T = convert(AbstractArray{T}, A)
 convert_eltype(::Type{T}, A::AbstractRange) where T = map(T, A)
 convert_eltype(::Type{T}, A::AbstractUnitRange) where T<:Integer = convert(AbstractUnitRange{T}, A)
 convert_eltype(::Type{T}, A::Tuple) where T = convert.(T, A)
@@ -86,9 +85,12 @@ _to_eltype(::Type{T}, ::Type{<:CartesianIndices}) where T = Array{T}
 
 @static if VERSION >= v"1.7"
     _to_eltype(::Type{T}, ::Type{<:StepRangeLen}) where T<:Real = StepRangeLen{T,_to_eltype(T,TwicePrecision),_to_eltype(T,TwicePrecision),Int}
+    _to_eltype(::Type{T}, ::Type{<:StepRange}) where T<:AbstractFloat = StepRangeLen{T,_to_eltype(T,TwicePrecision),_to_eltype(T,TwicePrecision),Int}
 else
     _to_eltype(::Type{T}, ::Type{<:StepRangeLen}) where T<:Real = StepRangeLen{T,_to_eltype(T,TwicePrecision),_to_eltype(T,TwicePrecision)}
+    _to_eltype(::Type{T}, ::Type{<:StepRange}) where {T<:AbstractFloat} = StepRangeLen{T,_to_eltype(T,TwicePrecision),_to_eltype(T,TwicePrecision)}
 end
+_to_eltype(::Type{T}, ::Type{<:StepRange}) where {T<:Real} = StepRange{T,T} # technically, it is better to preserve the step type. The current implementation follows from `Base.map(::Type{T}, r::StepRange) where {T<:Real}`.
 _to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Integer = UnitRange{T}
 _to_eltype(::Type{T}, ::Type{<:UnitRange}) where T<:Real = _to_eltype(T, StepRangeLen)
 
