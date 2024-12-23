@@ -42,7 +42,7 @@ The `basetype` is used for nested collections, where `eltype` is repeatedly appl
 - `sometype(T)` gets the `sometype` of type `T`.
 - `sometype(x) = sometype(typeof(x))` is also provided for convenience.
 - `_to_sometype(T,S)` converts the type `S` to have the `sometype` of `T`.
-- `someconvert(T,A)` converts `A` to have the `sometype` of `T`.
+- `convert_sometype(T,A)` converts `A` to have the `sometype` of `T`.
 
 where `some` can be `el`, `base` and `precision`.
 
