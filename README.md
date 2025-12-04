@@ -12,7 +12,7 @@ EltypeExtensions.jl is a mini toolbox for eltype-related conversions. The motiva
 
 We note that this package has some overlap with [TypeUtils.jl](https://github.com/emmt/TypeUtils.jl) and [Unitless.jl](https://github.com/emmt/Unitless.jl).
 
-The package is tested against `[Julia versions from 1.0 to 1.11]`X`[ubuntu, windows, macOS]`X`[x64]`. 
+The package is tested against `[Julia versions from 1.0 to 1.12]`X`[ubuntu, windows, macOS]`X`[x64]`. 
 
 ## Introduction
 
